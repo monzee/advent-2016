@@ -2,41 +2,41 @@ fun main(vararg args: String) {
     readLine()?.let { println(solve(it)) }
 }
 
-fun solve(moves: String): Int {
-    return moves.split(", ").fold(Cursor.Up(0, 0) as Cursor) { current, move ->
-        val dir = move.first()
-        val disp = move.drop(1).toInt()
-        when (dir.toUpperCase()) {
-            'L' -> current.left(disp)
-            'R' -> current.right(disp)
-            else -> throw IllegalArgumentException("direction must be L or R")
-        }
-    }.distance
-}
+fun solve(moves: String): Int = moves.split(", ").fold(ORIGIN) { turn, move ->
+    val dir = move.first()
+    val dist = move.drop(1).toInt()
+    when (dir.toUpperCase()) {
+        'L' -> turn.left(dist)
+        'R' -> turn.right(dist)
+        else -> throw IllegalArgumentException("must start with L or R")
+    }
+}.distanceFromOrigin
+
+val ORIGIN: Cursor = Cursor.Up(0, 0)
 
 sealed class Cursor(val x: Int, val y: Int) {
-    val distance: Int by lazy { Math.abs(x) + Math.abs(y) }
+    val distanceFromOrigin: Int by lazy { Math.abs(x) + Math.abs(y) }
 
-    abstract fun left(disp: Int): Cursor
-    abstract fun right(disp: Int): Cursor
+    abstract fun left(distance: Int): Cursor
+    abstract fun right(distance: Int): Cursor
 
     class Up(x: Int, y: Int) : Cursor(x, y) {
-        override fun left(disp: Int) = Left(x - disp, y)
-        override fun right(disp: Int) = Right(x + disp, y)
+        override fun left(distance: Int) = Left(x - distance, y)
+        override fun right(distance: Int) = Right(x + distance, y)
     }
 
     class Down(x: Int, y: Int) : Cursor(x, y) {
-        override fun left(disp: Int) = Right(x + disp, y)
-        override fun right(disp: Int) = Left(x - disp, y)
+        override fun left(distance: Int) = Right(x + distance, y)
+        override fun right(distance: Int) = Left(x - distance, y)
     }
 
     class Left(x: Int, y: Int) : Cursor(x, y) {
-        override fun left(disp: Int) = Down(x, y - disp)
-        override fun right(disp: Int) = Up(x, y + disp)
+        override fun left(distance: Int) = Down(x, y - distance)
+        override fun right(distance: Int) = Up(x, y + distance)
     }
 
     class Right(x: Int, y: Int) : Cursor(x, y) {
-        override fun left(disp: Int) = Up(x, y + disp)
-        override fun right(disp: Int) = Down(x, y - disp)
+        override fun left(distance: Int) = Up(x, y + distance)
+        override fun right(distance: Int) = Down(x, y - distance)
     }
 }
