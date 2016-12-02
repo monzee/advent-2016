@@ -19,10 +19,10 @@ class Brute(private val cur: Cursor, private val path: List<Straight>) {
     val blockDistance: Int get() = cur.at.distanceFromOrigin
 
     val firstIntersection: Point? by lazy {
-        path.subList(1, path.size).withIndex().flatMap {
+        path.asSequence().drop(1).withIndex().flatMap {
             val (i, target) = it
-            path.subList(0, i).mapNotNull { target.intersect(it) }
-        }.first()
+            path.asSequence().take(i).mapNotNull { target.intersect(it) }
+        }.firstOrNull()
     }
 
     fun follow(moves: List<String>): Brute = moves.fold(this) { turn, move ->
