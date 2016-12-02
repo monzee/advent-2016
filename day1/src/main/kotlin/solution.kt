@@ -8,13 +8,16 @@ fun main(vararg args: String) {
 }
 
 class BadDirection : IllegalArgumentException("must start with L or R")
+
 class DidNotMove : IllegalStateException("move distance should be non-zero")
+
 class DiagonalMove : IllegalStateException("can only move in a straight line")
 
 class Brute(private val cur: Cursor, private val path: List<Straight>) {
     constructor() : this(ORIGIN, mutableListOf())
 
-    val blockDistance = cur.at.distanceFromOrigin
+    val blockDistance: Int get() = cur.at.distanceFromOrigin
+
     val firstIntersection: Point? by lazy {
         path.subList(1, path.size).withIndex().flatMap {
             val (i, target) = it
@@ -36,7 +39,7 @@ class Brute(private val cur: Cursor, private val path: List<Straight>) {
 val ORIGIN: Cursor = Cursor.Up(0, 0)
 
 data class Point(val x: Int, val y: Int) {
-    val distanceFromOrigin: Int by lazy { Math.abs(x) + Math.abs(y) }
+    val distanceFromOrigin: Int get() = Math.abs(x) + Math.abs(y)
 
     fun lineTo(end: Point): Straight = when {
         this == end -> throw DidNotMove()
