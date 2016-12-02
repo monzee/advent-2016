@@ -18,15 +18,18 @@ class Brute(private val cur: Cursor, private val path: List<Straight>) {
 
     val blockDistance: Int get() = cur.at.distanceFromOrigin
 
+    // TODO this is not general enough. won't work if the first segment that
+    // intersects with something intersects multiple lines. has to be ordered
+    // somehow before testing but that would make this quadratic algo even worse
     val firstIntersection: Point? by lazy {
-        path.asSequence().drop(1).withIndex().flatMap {
+        path.asSequence().drop(3).withIndex().flatMap {
             val (i, target) = it
-            path.asSequence().take(i).mapNotNull { target.intersect(it) }
+            path.asSequence().take(i + 1).mapNotNull { target.intersect(it) }
         }.firstOrNull()
     }
 
-    fun follow(moves: List<String>): Brute = moves.fold(this) { turn, move ->
-        turn.to(move.first(), move.drop(1).toInt())
+    fun follow(cmds: List<String>): Brute = cmds.fold(this) { move, cmd ->
+        move.to(cmd.first(), cmd.drop(1).toInt())
     }
 
     fun to(dir: Char, distance: Int): Brute = when (dir.toUpperCase()) {
