@@ -1,9 +1,15 @@
-fun main(vararg args: String) = generateSequence { readLine() }
-        .fold(listOf(listOf(Square()), listOf(Diamond()))) { keypads, line ->
-            keypads.map { it + it.last().decode(line) }
+fun main(vararg args: String) {
+    generateSequence(Square() to Diamond()) {
+        val (square, diamond) = it
+        readLine()?.let {
+            square.decode(it) to diamond.decode(it)
         }
-        .map { it.drop(1) }
-        .forEach { println(it) }
+    }.drop(1).unzip().let {
+        val (square, diamond) = it
+        println(square.joinToString("", "square:  "))
+        println(diamond.joinToString("", "diamond: "))
+    }
+}
 
 class BadDirection(c: Char) : IllegalArgumentException(
         "must be one of #{U D L R}, got $c")
@@ -13,13 +19,13 @@ class BadKey(n: Int, min: Int, max: Int) : IndexOutOfBoundsException(
 
 interface Keypad {
     val at: Int
-    fun decode(line: CharSequence): Keypad
+    fun decode(seq: CharSequence): Keypad
 }
 
 class Square(override val at: Int) : Keypad {
     constructor() : this(5)
 
-    override fun decode(seq: CharSequence): Keypad = seq.fold(this) { code, dir ->
+    override fun decode(seq: CharSequence): Square = seq.fold(this) { code, dir ->
         when (dir.toUpperCase()) {
             'U' -> Square(code.at.up)
             'D' -> Square(code.at.down)
@@ -63,7 +69,7 @@ class Square(override val at: Int) : Keypad {
 class Diamond(override val at: Int) : Keypad {
     constructor() : this(5)
 
-    override fun decode(seq: CharSequence): Keypad = seq.fold(this) { code, dir ->
+    override fun decode(seq: CharSequence): Diamond = seq.fold(this) { code, dir ->
         when (dir) {
             'U' -> Diamond(code.at.up)
             'D' -> Diamond(code.at.down)
