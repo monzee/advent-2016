@@ -1,3 +1,5 @@
+package advent.day3
+
 fun main(vararg args: String) {
     when {
         "--vertical" in args -> generateSequence {

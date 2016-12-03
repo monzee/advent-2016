@@ -7,6 +7,7 @@ buildscript {
 plugins {
     id 'nebula.kotlin' version '1.0.5-2'
     id 'application'
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
 repositories {
@@ -18,7 +19,7 @@ dependencies {
     testCompile 'org.jetbrains.kotlin:kotlin-test-junit:1.0.5-2'
 }
 
-mainClassName = 'SolutionKt'
+mainClassName = 'advent.day3.SolutionKt'
 
 run.standardInput System.in
 
