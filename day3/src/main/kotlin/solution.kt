@@ -5,8 +5,8 @@ fun main(vararg args: String) {
                     .map(::parse)
                     .take(3)
                     .toList()
-                    .let { sufficient(it) }
-                    ?.let { rotate(it) }
+                    .let(isSufficient(3))
+                    ?.let(rotate())
                     ?.asSequence()
         }.flatMap { it }
         else -> generateSequence(::readLine).map(::parse)
@@ -20,14 +20,16 @@ fun parse(spec: String): List<Int> = spec
 
 fun isTriangle(sides: List<Int>): Boolean = sides
         .max()
-        ?.let { longest -> longest < sides.sum() - longest }
+        ?.let { it < sides.sum() - it }
         ?: false
 
-fun <T> sufficient(xss: List<T>): List<T>? = when (xss.size) {
-    3 -> xss
-    else -> null
+fun <T> isSufficient(count: Int): (List<T>) -> List<T>? = { xs ->
+    when (xs.size) {
+        count -> xs
+        else -> null
+    }
 }
 
-fun <T> rotate(xss: List<List<T>>): List<List<T>> = xss
-        .first()
-        .indices.map { col -> xss.map { it[col] } }
+fun <T> rotate(): (List<List<T>>) -> List<List<T>> = { xss ->
+    xss.first().indices.map { col -> xss.map { it[col] } }
+}
