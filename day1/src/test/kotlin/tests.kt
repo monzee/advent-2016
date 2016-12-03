@@ -48,7 +48,24 @@ class IntersectionTest {
 
 class TargetTest {
     @Test fun sample() {
-        val path = Brute().to('R', 8).to('R', 4).to('R', 4).to('R', 8)
-        assertEquals(4, path.firstIntersection?.distanceFromOrigin)
+        val path = Solve().to('R', 8).to('R', 4).to('R', 4).to('R', 8)
+        assertEquals(4, path.realLocation?.distanceFromOrigin)
+    }
+
+    @Test fun multibisecting_segment() {
+        val path = Solve()
+                .to('R',4).to('R', 1)
+                .to('R', 4).to('L', 1)
+                .to('L', 4).to('R', 1)
+                .to('R', 2).to('R', 10)
+        assertEquals(Point(2, -2), path.realLocation!!)
+    }
+
+    @Test fun double_back() {
+        val path = Solve()
+                .to('R', 4).to('R', 1)
+                .to('R', 4).to('L', 1)
+                .to('L', 4).to('L', 10)
+        assertEquals(Point(4, -1), path.realLocation!!)
     }
 }
