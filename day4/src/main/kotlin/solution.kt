@@ -5,38 +5,37 @@ import kotlin.comparisons.compareBy
 fun main(vararg args: String) {
     generateSequence(::readLine)
             .let(::solve)
-            .apply { print("sector sum: ") }
-            .let(::println)
+            .let { println("sector sum: $it") }
 }
 
 fun solve(problem: Sequence<String>): Int = problem
         .mapNotNull(::parse)
         .filter(::check)
-        .map(::printStorageRooms)
-        .map { it.sector }
+        .map { it.apply(grep(Regex("north"))).sector }
         .sum()
 
 data class Room(val name: String, val sector: Int, val checksum: String)
 
-fun parse(raw: String): Room? =
-        Regex("^([a-z\\-]+)(?:-(\\d+))\\[([a-z]{1,5})\\]")
-                .matchEntire(raw)
-                ?.groupValues
-                ?.drop(1)
-                ?.let {
-                    val (name, sector, checksum) = it
-                    Room(name, sector.toInt(), checksum)
-                }
+private const val SPEC =
+        """
+        ([a-z-]+)          # dashed name
+        (?: -(\d+) )       # sector
+        \[ ([a-z]{1,5}) \] # checksum
+        """
+
+fun parse(raw: String): Room? = Regex(SPEC, RegexOption.COMMENTS)
+        .matchEntire(raw)
+        ?.groupValues
+        ?.drop(1)
+        ?.let {
+            val (name, sector, checksum) = it
+            Room(name, sector.toInt(), checksum)
+        }
 
 fun check(room: Room): Boolean = room.checksum == room.name
         .filter { it != '-' }
-        .let {
-            val counts = mutableMapOf<Char, Int>()
-            it.forEach {
-                counts += it to ((counts[it] ?: 0) + 1)
-            }
-            counts.toSortedMap(compareBy({ -counts[it]!! }, { it }))
-        }
+        .groupBy { it }
+        .let { it.toSortedMap(compareBy({ k -> -it[k]!!.size }, { it })) }
         .keys
         .take(5)
         .joinToString("")
@@ -50,15 +49,15 @@ fun decrypt(room: Room): String = room.name
         }
         .joinToString("")
 
-internal const val FIRST = 'a'
-internal const val RANGE = 'z' - FIRST + 1
+private const val FIRST = 'a'
+private const val LENGTH = 'z' - FIRST + 1
 
-internal fun rotate(char: Char, by: Int): Char =
-        FIRST + ((char - FIRST + by) % RANGE)
+private fun rotate(char: Char, by: Int): Char =
+        FIRST + (char - FIRST + by) % LENGTH
 
-internal fun printStorageRooms(room: Room): Room = room.apply {
-    val decrypted = decrypt(this)
-    if (decrypted.endsWith("storage")) {
-        println("$decrypted - $sector")
+private fun grep(pattern: Regex): Room.() -> Unit = {
+    val code = decrypt(this)
+    if (pattern in code) {
+        println("$code - $sector")
     }
 }
