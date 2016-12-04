@@ -36,6 +36,14 @@ class ParseTest {
             assertEquals("totally-real-room", name)
         }
     }
+
+    @Test
+    fun bad() {
+        arrayOf(
+                "", "abc", "abc-1", "abc[def]", "10[def]", "10[abc]",
+                "!", "10-20-30[abc]", "abc-10[a1]", "abc-10[abcdef]"
+        ).forEach { assertNull(parse(it)) }
+    }
 }
 
 class ChecksumTest {

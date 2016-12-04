@@ -11,16 +11,17 @@ fun main(vararg args: String) {
 fun solve(problem: Sequence<String>): Int = problem
         .mapNotNull(::parse)
         .filter(::check)
-        .map { it.apply(grep(Regex("north"))).sector }
+        .map { it.apply(grep("north")).sector }
         .sum()
 
 data class Room(val name: String, val sector: Int, val checksum: String)
 
+private const val CHECKSUM_LENGTH = 5
 private const val SPEC =
         """
-        ([a-z-]+)          # dashed name
-        (?: -(\d+) )       # sector
-        \[ ([a-z]{1,5}) \] # checksum
+        ([a-z-]+)                         # dashed name
+        (?: -(\d+) )                      # sector
+        \[ ([a-z]{1,$CHECKSUM_LENGTH}) \] # checksum
         """
 
 fun parse(raw: String): Room? = Regex(SPEC, RegexOption.COMMENTS)
@@ -37,7 +38,7 @@ fun check(room: Room): Boolean = room.checksum == room.name
         .groupBy { it }
         .let { it.toSortedMap(compareBy({ k -> -it[k]!!.size }, { it })) }
         .keys
-        .take(5)
+        .take(CHECKSUM_LENGTH)
         .joinToString("")
 
 fun decrypt(room: Room): String = room.name
@@ -55,9 +56,9 @@ private const val LENGTH = 'z' - FIRST + 1
 private fun rotate(char: Char, by: Int): Char =
         FIRST + (char - FIRST + by) % LENGTH
 
-private fun grep(pattern: Regex): Room.() -> Unit = {
-    val code = decrypt(this)
-    if (pattern in code) {
-        println("$code - $sector")
+private fun grep(pattern: String): Room.() -> Unit = {
+    val secret = decrypt(this)
+    if (pattern in secret) {
+        println("$secret - $sector")
     }
 }
