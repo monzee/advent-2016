@@ -10,10 +10,10 @@ fun main(vararg args: String) {
 
 fun solve(search: String): (Sequence<String>) -> Int = {
     it.mapNotNull(::parse)
-        .onEach(grepDecrypt(search) { println("$it - $sector") })
-        .filter(::check)
-        .map(Room::sector)
-        .sum()
+            .onEach(grepDecrypt(search) { println("$it - $sector") })
+            .filter(::check)
+            .map(Room::sector)
+            .sum()
 }
 
 data class Room(val name: String, val sector: Int, val checksum: String)
