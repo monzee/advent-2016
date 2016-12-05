@@ -4,32 +4,33 @@ import kotlin.comparisons.compareBy
 
 fun main(vararg args: String) {
     generateSequence(::readLine)
-            .let(::solve)
-            .let { println("sector sum: $it") }
+            .let(solve(args.firstOrNull() ?: "north"))
+            .let { println("real sector sum: $it") }
 }
 
-fun solve(problem: Sequence<String>): Int = problem
-        .mapNotNull(::parse)
+fun solve(search: String): (Sequence<String>) -> Int = {
+    it.mapNotNull(::parse)
+        .onEach(grepDecrypt(search) { println("$it - $sector") })
         .filter(::check)
-        .map { it.apply(grep("north")).sector }
+        .map(Room::sector)
         .sum()
+}
 
 data class Room(val name: String, val sector: Int, val checksum: String)
 
 private const val CHECKSUM_LENGTH = 5
 private const val SPEC =
         """
-        ([a-z-]+)                         # dashed name
-        (?: -(\d+) )                      # sector
+        ([a-z]+(?:-[a-z]+)*)              # dashed name
+        -(\d+)                            # sector
         \[ ([a-z]{1,$CHECKSUM_LENGTH}) \] # checksum
         """
 
 fun parse(raw: String): Room? = Regex(SPEC, RegexOption.COMMENTS)
         .matchEntire(raw)
         ?.groupValues
-        ?.drop(1)
         ?.let {
-            val (name, sector, checksum) = it
+            val (_ignored, name, sector, checksum) = it
             Room(name, sector.toInt(), checksum)
         }
 
@@ -56,9 +57,19 @@ private const val LENGTH = 'z' - FIRST + 1
 private fun rotate(char: Char, by: Int): Char =
         FIRST + (char - FIRST + by) % LENGTH
 
-private fun grep(pattern: String): Room.() -> Unit = {
-    val secret = decrypt(this)
+private inline fun grepDecrypt(
+        pattern: String,
+        crossinline action: Room.(String) -> Unit
+): (Room) -> Unit = {
+    val secret = decrypt(it)
     if (pattern in secret) {
-        println("$secret - $sector")
+        action(it, secret)
     }
+}
+
+private inline fun <T> Sequence<T>.onEach(
+        crossinline action: (T) -> Unit
+): Sequence<T> = map {
+    action(it)
+    it
 }
