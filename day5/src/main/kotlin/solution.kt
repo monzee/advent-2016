@@ -38,13 +38,11 @@ fun simple(prefix: String): String = generateSequence(0) { it + 1 }
 private val MD5 = MessageDigest.getInstance("MD5")
 private val BYTE_STR = (-128..127).map { "%02x".format(it.toByte()) }
 
-fun hash(text: String): String = text
-        .toByteArray()
-        .let {
-            buildString {
-                MD5.digest(it).forEach { append(BYTE_STR[it.toInt() + 128]) }
-            }
-        }
+fun hash(text: String): CharSequence = StringBuilder().apply {
+    text.toByteArray()
+            .let { MD5.digest(it) }
+            .forEach { append(BYTE_STR[it + 128]) }
+}
 
 fun nextChar(hash: CharSequence): Char? = when {
     hash.startsWith("00000") -> hash[5]
@@ -53,10 +51,11 @@ fun nextChar(hash: CharSequence): Char? = when {
 
 data class Password(val size: Int = 8) {
     val chars = StringBuilder("_".repeat(size))
-    private val flags = BitSet(size)
     val complete: Boolean get() = flags.cardinality() == size
+    private val flags = BitSet(size)
 
     operator fun set(i: Int, char: Char) {
+        require(i in 0 until size) { "out of bounds" }
         if (!flags.get(i)) {
             flags.set(i)
             chars[i] = char

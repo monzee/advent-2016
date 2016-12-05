@@ -30,7 +30,7 @@ class Solution {
     fun example() {
         todo {
             // takes forever to finish but it's correct
-             assertEquals("18f47a30", solve("abc"))
+             assertEquals("18f47a30", simple("abc"))
         }
         assertEquals("05ace8e3", solve("abc"))
     }
