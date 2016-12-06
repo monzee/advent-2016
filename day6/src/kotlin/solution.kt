@@ -2,21 +2,19 @@ package advent.day6
 
 import kotlin.comparisons.compareBy
 import ph.codeia.klee.echo
-import ph.codeia.klee.debug
 
 import org.junit.Test
 import org.junit.Assert.*
 
 fun main(vararg args: String) {
-    println("advent://2016/06".debug)
     generateSequence(::readLine)
             .toList()
             .let { decode(it, { it.first() }, { it.last() }) }
             .forEachIndexed { i, it -> it.echo("part ${i + 1}:") }
 }
 
-fun List<String>.rotate(): List<String> =
-        first().indices.map { col -> map { it[col] }.joinToString("") }
+fun List<String>.rotate(): Sequence<List<Char>> =
+        first().indices.asSequence().map { col -> map { it[col] } }
 
 fun decode(
         lines: List<String>,
@@ -26,7 +24,7 @@ fun decode(
         .map {
             it.groupBy { it }
                 .map { it.value.size to it.key }
-                .sortedWith(compareBy({ -it.first }, { it.second }))
+                .sortedWith(compareBy { -it.first })
                 .map { it.second }
         }
         .let { xs -> selectors.map { xs.map(it).joinToString("") } }
