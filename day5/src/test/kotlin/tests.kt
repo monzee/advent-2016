@@ -2,7 +2,6 @@ package advent.day5
 
 import kotlin.test.*
 import org.junit.Test
-import java.util.concurrent.ArrayBlockingQueue
 
 class Md5Test {
     @Test
@@ -29,8 +28,8 @@ class Md5Test {
 class Solution {
     @Test
     fun example() {
-        val simple = ArrayBlockingQueue<Char>(8)
-        assertEquals("05ace8e3", solve("abc", simple))
+        val simple = CharArray(8)
+        assertEquals("05ace8e3", solve("abc", simpleScheme(simple)))
         assertEquals("18f47a30", simple.joinToString(""))
     }
 }

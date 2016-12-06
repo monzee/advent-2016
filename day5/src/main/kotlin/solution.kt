@@ -1,35 +1,42 @@
 package advent.day5
 
 import java.security.MessageDigest
-import java.util.concurrent.BlockingQueue
-import java.util.concurrent.ArrayBlockingQueue
 
 fun main(vararg args: String) {
     readLine()?.let {
-        val simpleScheme = ArrayBlockingQueue<Char>(8)
-        solve(it, simpleScheme)
-        println(simpleScheme.joinToString(""))
+        val password = CharArray(8)
+        print("\u001b[1Gcracking... ________")
+        solve(it, simpleScheme(password))
+        println()
+        println(password.joinToString(""))
     }
 }
 
-fun solve(
+inline fun solve(
         prefix: String,
-        aside: BlockingQueue<Char>? = null
+        crossinline aside: (CharSequence) -> Unit
 ): String = generateSequence(0, Int::inc)
         .map { "$prefix$it" }
         .map(::md5)
         .filter { it.startsWith("00000") }
-        .onEach {
-            aside?.apply { offer(it[5]) }
-        }
+        .onEach(aside)
         .filter { it[5] in '0'..'7' }
         .distinctBy { it[5] }
         .take(8)
         .fold(StringBuilder("_".repeat(8))) { password, hash ->
             password[hash[5] - '0'] = hash[6]
-            password.apply(::println)
+            password.apply { print("\u001b[13G$this") }
         }
         .toString()
+
+fun simpleScheme(password: CharArray): (CharSequence) -> Unit {
+    var i = 0
+    return {
+        if (i < password.size) {
+            password[i++] = it[5]
+        }
+    }
+}
 
 private val MD5 = MessageDigest.getInstance("MD5")
 private val BYTE_STR = (-128..127).map { "%02x".format(it.toByte()) }
