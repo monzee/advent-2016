@@ -1,11 +1,14 @@
 package advent.day6
 
 import kotlin.comparisons.compareBy
+import ph.codeia.klee.echo
+import ph.codeia.klee.debug
 
 import org.junit.Test
 import org.junit.Assert.*
 
 fun main(vararg args: String) {
+    println("advent://2016/06".debug)
     generateSequence(::readLine)
             .toList()
             .let { decode(it, { it.first() }, { it.last() }) }
@@ -27,6 +30,7 @@ fun decode(
                 .map { it.second }
         }
         .let { xs -> selectors.map { xs.map(it).joinToString("") } }
+
 
 val SAMPLE = """
         eedadn
@@ -68,19 +72,3 @@ class tests {
         assertEquals("advent", decode(SAMPLE.lines(), { it.last() }).first())
     }
 }
-
-fun <T> T?.echo(
-        prefix: String? = null,
-        color: Int = 6,
-        intense: Boolean = true
-): T? = this.apply {
-    if (prefix == null) {
-        println(this)
-    } else {
-        val ESC = "\u001b"
-        val COLOR = "${if (intense) 9 else 3}${color.coerceIn(0, 7)}m"
-        println("$ESC[$COLOR$prefix$ESC[0m $this")
-    }
-}
-
-val <T> T?.echo: T? get() = echo()

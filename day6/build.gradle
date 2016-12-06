@@ -8,9 +8,13 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
-repositories.mavenCentral()
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
 
 dependencies {
+    compile 'ph.codeia.klee:klee:0.1.0'
     compile 'junit:junit:4.12'
     testCompile 'junit:junit:4.12'
 }
