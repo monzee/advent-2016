@@ -14,11 +14,9 @@ fun main(vararg args: String) {
     }
 }
 
-fun solve(vararg parts: () -> Any): List<Any> = parts.map { it() }
-
 fun spec(minLength: Int): Regex = Regex("""
-        [^\[\]]{$minLength,}  \]|  # enclosed segment
-        [^\[\]]{$minLength,}  \[?  # outer
+        \]? [^\[\]]{$minLength,} |  # outer
+        \[  [^\[\]]{$minLength,}    # enclosed
         """.trimIndent(), RegexOption.COMMENTS)
 
 fun split(
@@ -27,14 +25,15 @@ fun split(
 ): Pair<List<String>, List<String>> = spec(minLength)
         .findAll(address)
         .map { it.groupValues.first() }
-        .partition { it.endsWith(']') }
+        .partition { it.startsWith('[') }
 
 fun supportsTls(entry: String): Boolean = split(entry).let {
     val (subnets, supernets) = it
-    subnets.all { !hasAbba(it) } && supernets.any(::hasAbba)
+    !subnets.any(::hasAbba) && supernets.any(::hasAbba)
 }
 
 fun hasAbba(segment: String): Boolean = (0..segment.lastIndex - 3)
+        .asSequence()
         .map { segment.substring(it, it + 4) }
         .any { it[0] != it[1] && it[1] == it[2] && it[0] == it[3] }
 
@@ -46,11 +45,9 @@ fun supportsSsl(entry: String): Boolean = split(entry, 3).let {
                         .map { i -> it.substring(i, i + 3) }
                         .filter { it[0] != it[1] && it[0] == it[2] }
             }
-            .map(::babOf)
+            .map { charArrayOf(it[1], it[0], it[1]).joinToString("") }
             .any { bab -> subnets.any { bab in it } }
 }
-
-fun babOf(aba: String): String = charArrayOf(aba[1], aba[0], aba[1]).joinToString("")
 
 // === test area === //
 
