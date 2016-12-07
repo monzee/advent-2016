@@ -4,8 +4,6 @@ import ph.codeia.klee.*
 
 import org.junit.Test
 import org.junit.Assert.*
-import org.junit.Assume.*
-import org.hamcrest.CoreMatchers.*
 
 fun main(vararg args: String) {
     generateSequence(::readLine).toList().let {
@@ -28,8 +26,8 @@ fun split(
         .partition { it.startsWith('[') }
 
 fun supportsTls(entry: String): Boolean = split(entry).let {
-    val (subnets, supernets) = it
-    !subnets.any(::hasAbba) && supernets.any(::hasAbba)
+    val (hypernets, supernets) = it
+    !hypernets.any(::hasAbba) && supernets.any(::hasAbba)
 }
 
 fun hasAbba(segment: String): Boolean = (0..segment.lastIndex - 3)
@@ -38,7 +36,7 @@ fun hasAbba(segment: String): Boolean = (0..segment.lastIndex - 3)
         .any { it[0] != it[1] && it[1] == it[2] && it[0] == it[3] }
 
 fun supportsSsl(entry: String): Boolean = split(entry, 3).let {
-    val (subnets, supernets) = it
+    val (hypernets, supernets) = it
     supernets.asSequence()
             .flatMap {
                 (0..it.lastIndex - 2).asSequence()
@@ -46,7 +44,7 @@ fun supportsSsl(entry: String): Boolean = split(entry, 3).let {
                         .filter { it[0] != it[1] && it[0] == it[2] }
             }
             .map { charArrayOf(it[1], it[0], it[1]).joinToString("") }
-            .any { bab -> subnets.any { bab in it } }
+            .any { bab -> hypernets.any { bab in it } }
 }
 
 // === test area === //
