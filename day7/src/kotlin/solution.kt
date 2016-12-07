@@ -1,7 +1,6 @@
 package advent.day7
 
 import ph.codeia.klee.*
-import ph.codeia.klee.style.Rendition
 
 import org.junit.Test
 import org.junit.Assert.*
@@ -17,14 +16,17 @@ fun main(vararg args: String) {
 
 fun solve(vararg parts: () -> Any): List<Any> = parts.map { it() }
 
-val SPEC = Regex("""
-        [^\[\]]{3,}  \]|  # enclosed segment
-        [^\[\]]{3,}  \[?  # outer
+fun spec(minLength: Int): Regex = Regex("""
+        [^\[\]]{$minLength,}  \]|  # enclosed segment
+        [^\[\]]{$minLength,}  \[?  # outer
         """.trimIndent(), RegexOption.COMMENTS)
 
-fun split(address: String): Pair<List<String>, List<String>> = SPEC
+fun split(
+        address: String,
+        minLength: Int = 4
+): Pair<List<String>, List<String>> = spec(minLength)
         .findAll(address)
-        .map { it.groups.first()!!.value }
+        .map { it.groupValues.first() }
         .partition { it.endsWith(']') }
 
 fun supportsTls(entry: String): Boolean = split(entry).let {
@@ -34,24 +36,19 @@ fun supportsTls(entry: String): Boolean = split(entry).let {
 
 fun hasAbba(segment: String): Boolean = (0..segment.lastIndex - 3)
         .map { segment.substring(it, it + 4) }
-        .any(::isAbba)
+        .any { it[0] != it[1] && it[1] == it[2] && it[0] == it[3] }
 
-fun isAbba(it: String): Boolean =
-        it[0] != it[1] && it[1] == it[2] && it[0] == it[3]
-
-fun supportsSsl(entry: String): Boolean = split(entry).let {
-    val (subnets, supernets) = it.echo
-    supernets.flatMap(::abasOf)
-            .any { 
-                babOf(it).let { bab -> subnets.any { bab in it.echo(bab)!! } }
+fun supportsSsl(entry: String): Boolean = split(entry, 3).let {
+    val (subnets, supernets) = it
+    supernets.asSequence()
+            .flatMap {
+                (0..it.lastIndex - 2).asSequence()
+                        .map { i -> it.substring(i, i + 3) }
+                        .filter { it[0] != it[1] && it[0] == it[2] }
             }
+            .map(::babOf)
+            .any { bab -> subnets.any { bab in it } }
 }
-
-fun abasOf(segment: String): List<String> = (0..segment.lastIndex - 2)
-        .map { segment.substring(it, it + 3) }
-        .filter(::isAba)
-
-fun isAba(it: String): Boolean = it[0] != it[1] && it[0] == it[2]
 
 fun babOf(aba: String): String = charArrayOf(aba[1], aba[0], aba[1]).joinToString("")
 
@@ -67,10 +64,6 @@ class scratch {
         .let { Regex("""([^\[\]]{4,})\]|([^\[\]]{4,})\[?""").findAll(it) }
         .map { it.groups.first()!!.value }
         .partition { it.endsWith(']') }
-        .echo
-        .let {
-            "???".style(Rendition.BLUE.intense)
-        }
         .echo
     }
 
