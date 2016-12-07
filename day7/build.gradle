@@ -22,7 +22,7 @@ sourceSets.forEach {
     it.kotlin.srcDir 'src/kotlin'
 }
 
-mainClassName = 'advent.day6.SolutionKt'
+mainClassName = 'advent.day7.SolutionKt'
 
 run.standardInput = System.in
 

@@ -1,7 +1,7 @@
 package advent.day6
 
 import kotlin.comparisons.compareBy
-import ph.codeia.klee.echo
+import ph.codeia.klee.*
 
 import org.junit.Test
 import org.junit.Assert.*
@@ -27,6 +27,7 @@ fun decode(
                 .sortedWith(compareBy { -it.first })
                 .map { it.second }
         }
+        .toList()
         .let { xs -> selectors.map { xs.map(it).joinToString("") } }
 
 
