@@ -15,7 +15,7 @@ fun main(vararg args: String) {
 const val SCREEN_W = 50
 const val SCREEN_H = 6
 val SPEC = Regex("""
-        rect \s+ (\d+)x(\d+) |
+        rect \s+ (\d+) \s* x \s* (\d+) |
         rotate \s+ (row \s+ y|column \s+ x) \s* = \s* (\d{1,2}) \s+ by \s+ (\d+)
         """.trimIndent(), RegexOption.COMMENTS)
 
@@ -54,11 +54,13 @@ class Display(val width: Int = SCREEN_W, val height: Int = SCREEN_H) {
             val params = it.groupValues.drop(1)
             when {
                 inst.startsWith("rect") -> rect(params[0].toInt(), params[1].toInt())
-                inst.startsWith("rotate") -> when {
-                    params[2].startsWith("row") ->
-                            rotateRow(params[3].toInt(), params[4].toInt())
-                    params[2].startsWith("column") ->
-                            rotateCol(params[3].toInt(), params[4].toInt())
+                inst.startsWith("rotate") -> {
+                    val axis = params[2]
+                    val (at, by) = params.takeLast(2).map(String::toInt)
+                    when {
+                        axis.startsWith("row") -> rotateRow(at, by)
+                        axis.startsWith("column") -> rotateCol(at, by)
+                    }
                 }
             }
         }
