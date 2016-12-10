@@ -1,0 +1,32 @@
+buildscript {
+    repositories.mavenCentral()
+}
+
+plugins {
+    id 'nebula.kotlin' version '1.0.5-2'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile 'ph.codeia.klee:klee:0.1.0'
+    compile 'junit:junit:4.12'
+}
+
+sourceSets.forEach {
+    it.kotlin.srcDir 'src/kotlin'
+}
+
+mainClassName = 'advent.day9.SolutionKt'
+
+run.standardInput = System.in
+
+test.testLogging {
+    events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+    exceptionFormat 'full'
+}
